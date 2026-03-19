@@ -334,7 +334,7 @@ function LaunchesTab() {
   const [selected, setSelected] = useState(null);
   const [windFilter, setWindFilter] = useState("Alla");
   const [seasonFilter, setSeasonFilter] = useState("Alla");
-  const [launches, setLaunches] = useState(LAUNCHES_FALLBACK);
+  const [launches, setLaunches] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
