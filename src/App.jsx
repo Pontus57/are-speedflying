@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = "https://pmcaffqqkvqnvpvbaknn.supabase.co";
-const SUPABASE_KEY = "sb_publishable_kkv5I29McgRZwisITrnHXg_boKc820N";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtY2FmZnFxa3ZxbnZwdmJha25uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzA3NTIsImV4cCI6MjA4OTUwNjc1Mn0.KtSRzQ589Sy2Zk27REhrc2v9MX_5JTfhRX6QkvjUqkg";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Fallback data used only if Supabase is unreachable
