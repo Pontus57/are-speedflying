@@ -55,22 +55,44 @@ function mapIncident(row) {
 const WIND_COLORS = { "Östlig": "#3B8BD4", "Västlig": "#1D9E75", "Sydlig": "#EF9F27", "Nordlig": "#D85A30", "Nord-Östlig": "#7F77DD", "Syd-Östlig": "#D4537E" };
 const DIFF_STYLE = { "Lätt": { bg: "#eaf3de", color: "#3B6D11" }, "Medel": { bg: "#faeeda", color: "#854F0B" }, "Avancerad": { bg: "#fcebeb", color: "#A32D2D" } };
 
-const GUIDELINES = [
-  { title: "Höjdregler", body: "Respektera alltid angivna minimihöjder över skidpistorna. Håll minst 30m över liftar och 50m över löpande liftkablar." },
-  { title: "Luftrum", body: "Åre faller inom kontrollerat luftrum. Kolla NOTAM och luftrumsrestriktioner inför varje flygning. Maxhöjd regleras av Transportstyrelsen." },
-  { title: "Siktkrav", body: "Flyg aldrig i dimma eller när molnbasen är under bergstoppar. Minimum sikt 1,5 km för visuell flygning." },
-  { title: "Kommunikation", body: "Informera alltid någon på marken om din planerade flygning – start, rutt och förväntad landningstid." },
-  { title: "Utrustning", body: "Speedwing, hjälm och ryggskydd är obligatoriska. Varmt rekommenderat: aktiveringslina till räddningsskärm och action cam." },
-  { title: "Snöförhållanden", body: "Hård packad snö och is ger hård landning. Kontrollera alltid landningszon och välj mjukare underlag vid dåliga förhållanden." },
+const HAZARDS = [
+  {
+    title: "Elledningarna",
+    body: "Vi har elledningar som löper en bit ovanför foten av Skutan. Dessa är som mest närvarande när du flyger in mot Draklanda. Se till att hålla god marginal till elledningarna efter att du passerar VM-platån. Ledningarna löper en bit ovanför E14 och sträcker sig ca 30 meter upp från backen.",
+    coords: null, images: []
+  },
+  {
+    title: "Kabinbanan",
+    body: "Från topp till botten löper kabinbanans vajern. Den kan vara svår att se ibland – se till att du har koll på hur den löper. Speciellt vid flygning där du passerar öster om Hummeln och flyger mot Draklanda.",
+    coords: null, images: []
+  },
+  {
+    title: "Snökanoner",
+    body: "För erfarna piloter som flyger nära terräng. Snökanoner finns överallt på berget, speciellt i kanten av pist eller strax utanför pister.",
+    coords: null, images: []
+  },
+  {
+    title: "Vajer La Gondola",
+    body: "I höjd med träden precis öster om La Gondola löper en vajern. Detta är inget bekymmer om du inte flyger nära terräng. Flyger du så nära terräng att denna vajern är ett bekymmer flyger du förhoppningsvis redan med en erfaren lokal pilot som redan briefat dig.",
+    coords: { lat: 63.41407997220485, lng: 13.065387018472242 }, images: []
+  },
+  {
+    title: "Gondolvajern",
+    body: "Gondolens vajern löper från VM-platån upp till Skutan. Den är ofta tydlig då den i regel har gondoler ute. Den kan bli ett bekymmer om du inte har den i åtanke och flyger österut strax ovanför VM-platån.",
+    coords: null, images: []
+  },
+  {
+    title: "Vindstrut & betongrör vid Skysport",
+    body: "Om du kommer in lågt och landar i västlig riktning i höjd med gula Skysport-huset behöver du förhålla dig till en mindre vindstrut. Bredvid Skysport vid vattenutloppet finns ett stort betongrör, följt av sten och uppförsbacke innan landningsfältet börjar. Inget som ska vara ett bekymmer om du planerat din landning – välj vattenlandning i annat fall.",
+    coords: null, images: []
+  },
 ];
 
-const ETIQUETTE = [
-  { n: "01", text: "En pilot i luften äger luftrummet. Vänta alltid tills föregående pilot landat och är ur vägen." },
-  { n: "02", text: "Kommunicera tydligt i startzonen. Annonsera din start med tydlig röst, vänta på kvittens." },
-  { n: "03", text: "Respektera köordningen vid populära starter. Ingen springer förbi utan gemensam överenskommelse." },
-  { n: "04", text: "Håll skidpistar fria under riskmoment. Bank aldrig lågt över pistor med aktiva skidåkare." },
-  { n: "05", text: "Dokumentera och dela incidenter. Alla avvikelser och nära ögat-situationer rapporteras." },
-  { n: "06", text: "Landningszoner är heliga. Flyg aldrig för lågt över andra piloters planerade landningszon." },
+const GUIDELINES = [
+  { n: "01", title: "Pister om vintern", body: "Håll god höjd ovanför aktiva pister med skidgäster i." },
+  { n: "02", title: "Offpist", body: "Offpisten är helt fri att leka i som du vill." },
+  { n: "03", title: "Stör inte övriga besökare", body: "Undvik swoops eller flygning nära icke-flygare på berget. Om någon vinkar och bjuder in till fly-by, håll ändå god marginal." },
+  { n: "04", title: "Ansvara för ditt eget flyg", body: "Följ inte blint personen framför dig om ni inte har gjort upp en plan. Personen framför dig kan vara en mer erfaren pilot som gör något över din nivå, eller göra en felbedömning och skapa en utsatt situation. Flyg ditt eget flyg." },
 ];
 
 const LANDING_SITES = [
@@ -354,25 +376,78 @@ function LaunchesTab() {
 
 // ─── GUIDELINES ───────────────────────────────────────────────────────────────
 
+function HazardModal({ hazard, onClose }) {
+  if (!hazard) return null;
+  const mapBtn = { padding: "8px 14px", borderRadius: 8, border: "0.5px solid #d5d2c9", fontSize: 13, color: "#1a1a1a", textDecoration: "none", background: "#fff", display: "inline-flex", alignItems: "center", gap: 6 };
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }} onClick={onClose}>
+      <div style={{ background: "#fff", borderRadius: 16, padding: 32, maxWidth: 540, width: "100%", maxHeight: "85vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+          <h2 style={{ fontSize: 20, fontWeight: 500, margin: 0 }}>{hazard.title}</h2>
+          <button onClick={onClose} style={{ border: "none", background: "none", fontSize: 20, cursor: "pointer", color: "#888" }}>✕</button>
+        </div>
+        <p style={{ fontSize: 14, color: "#555", lineHeight: 1.7, marginBottom: 16 }}>{hazard.body}</p>
+        {hazard.images && hazard.images.length > 0 && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px,1fr))", gap: 8, marginBottom: 16 }}>
+            {hazard.images.map((src, i) => <img key={i} src={src} alt="" style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", borderRadius: 8, border: "0.5px solid #e5e2d9" }} />)}
+          </div>
+        )}
+        {hazard.coords && (
+          <div style={{ borderTop: "0.5px solid #f0ede6", paddingTop: 14 }}>
+            <div style={{ fontSize: 12, fontWeight: 500, color: "#999", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.04em" }}>Öppna i kartor</div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <a href={`https://www.google.com/maps?q=${hazard.coords.lat},${hazard.coords.lng}`} target="_blank" rel="noopener noreferrer" style={mapBtn}>🗺 Google Maps</a>
+              <a href={`https://maps.apple.com/?ll=${hazard.coords.lat},${hazard.coords.lng}&q=${encodeURIComponent(hazard.title)}`} target="_blank" rel="noopener noreferrer" style={mapBtn}>🍎 Apple Maps</a>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function GuidelinesTab() {
+  const [selectedHazard, setSelectedHazard] = useState(null);
   return (
     <div>
-      <SectionHeader title="Riktlinjer" subtitle="Allmänna riktlinjer för flygning på Årefjället" />
-      <div style={{ display: "grid", gap: 12, marginBottom: 40 }}>
-        {GUIDELINES.map((g, i) => (
-          <div key={i} style={{ background: "#fff", border: "0.5px solid #e5e2d9", borderRadius: 12, padding: "16px 20px" }}>
-            <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 6, color: "#1a1a1a" }}>{g.title}</div>
-            <div style={{ fontSize: 14, color: "#555", lineHeight: 1.6 }}>{g.body}</div>
+      <div style={{ background: "#f8f7f4", border: "0.5px solid #e5e2d9", borderRadius: 12, padding: "18px 20px", marginBottom: 32 }}>
+        <div style={{ fontSize: 16, fontWeight: 500, color: "#1a1a1a", marginBottom: 6 }}>Ny på berget? Börja här!</div>
+        <div style={{ fontSize: 14, color: "#555", lineHeight: 1.6 }}>Här hittar du allmänna flygregler samt kända faror och hinder för flygning på Åreskutan.</div>
+      </div>
+
+      <SectionHeader title="Faror & hinder" subtitle="Notera att det kan finnas hinder som inte finns listade här, eller temporära faror." />
+      <div style={{ display: "grid", gap: 10, marginBottom: 40 }}>
+        {HAZARDS.map((h, i) => (
+          <div key={i} onClick={() => setSelectedHazard(h)} style={{ background: "#fff", border: "0.5px solid #e5e2d9", borderRadius: 12, padding: "14px 20px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.08)"} onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                <span style={{ fontSize: 16, lineHeight: 1 }}>⚠️</span>
+                <span style={{ fontSize: 15, fontWeight: 500, color: "#1a1a1a" }}>{h.title}</span>
+                {h.coords && <span style={{ fontSize: 11, background: "#e8f3fb", color: "#3B8BD4", padding: "1px 6px", borderRadius: 4 }}>📍 Karta</span>}
+                {h.images && h.images.length > 0 && <span style={{ fontSize: 11, background: "#f0f0e8", color: "#666", padding: "1px 6px", borderRadius: 4 }}>📷 {h.images.length} bild{h.images.length > 1 ? "er" : ""}</span>}
+              </div>
+              <p style={{ fontSize: 13, color: "#888", margin: 0, lineHeight: 1.5 }}>{h.body.slice(0, 90)}{h.body.length > 90 ? "…" : ""}</p>
+            </div>
+            <span style={{ color: "#ccc", fontSize: 18, flexShrink: 0 }}>›</span>
           </div>
         ))}
       </div>
-      <SectionHeader title="Etik & uppförande" subtitle="Hur vi flyger tillsammans" />
-      <div>{ETIQUETTE.map((e, i) => (
-        <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start", padding: "14px 0", borderBottom: i < ETIQUETTE.length - 1 ? "0.5px solid #f0ede6" : "none" }}>
-          <span style={{ fontSize: 11, fontWeight: 500, color: "#ccc", minWidth: 22, paddingTop: 2 }}>{e.n}</span>
-          <span style={{ fontSize: 14, color: "#444", lineHeight: 1.6 }}>{e.text}</span>
-        </div>
-      ))}</div>
+
+      <SectionHeader title="Generella riktlinjer" subtitle="Hur vi flyger på Åreskutan" />
+      <div style={{ marginBottom: 8 }}>
+        {GUIDELINES.map((g, i) => (
+          <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start", padding: "14px 0", borderBottom: i < GUIDELINES.length - 1 ? "0.5px solid #f0ede6" : "none" }}>
+            <span style={{ fontSize: 11, fontWeight: 500, color: "#ccc", minWidth: 22, paddingTop: 2 }}>{g.n}</span>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: "#1a1a1a", marginBottom: 3 }}>{g.title}</div>
+              <div style={{ fontSize: 14, color: "#555", lineHeight: 1.6 }}>{g.body}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <HazardModal hazard={selectedHazard} onClose={() => setSelectedHazard(null)} />
     </div>
   );
 }
@@ -691,7 +766,7 @@ function IncidentsTab() {
 
 // ─── APP ──────────────────────────────────────────────────────────────────────
 
-const TABS = [{ id: "launches", label: "Starter" }, { id: "guidelines", label: "Riktlinjer" }, { id: "landings", label: "Landningar" }, { id: "incidents", label: "Incidentrapporter" }];
+const TABS = [{ id: "launches", label: "Starter" }, { id: "guidelines", label: "Briefing" }, { id: "landings", label: "Landningar" }, { id: "incidents", label: "Incidentrapporter" }];
 
 export default function App() {
   const [tab, setTab] = useState("launches");
