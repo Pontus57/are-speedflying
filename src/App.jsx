@@ -306,7 +306,7 @@ function LaunchModal({ launch, onClose }) {
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }} onClick={onClose}>
       <div style={{ background: "#fff", borderRadius: 16, padding: 32, maxWidth: 540, width: "100%", maxHeight: "85vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 500, margin: 0 }}>{launch.name}</h2>
+          <h2 style={{ fontSize: 22, fontWeight: 500, margin: 0, color: "#111" }}>{launch.name}</h2>
           <button onClick={onClose} style={{ border: "none", background: "none", fontSize: 20, cursor: "pointer", color: "#888" }}>✕</button>
         </div>
         <div style={{ marginBottom: 14 }}><SeasonBadge season={launch.season} /></div>
@@ -383,7 +383,7 @@ function HazardModal({ hazard, onClose }) {
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }} onClick={onClose}>
       <div style={{ background: "#fff", borderRadius: 16, padding: 32, maxWidth: 540, width: "100%", maxHeight: "85vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-          <h2 style={{ fontSize: 20, fontWeight: 500, margin: 0 }}>{hazard.title}</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 500, margin: 0, color: "#111" }}>{hazard.title}</h2>
           <button onClick={onClose} style={{ border: "none", background: "none", fontSize: 20, cursor: "pointer", color: "#888" }}>✕</button>
         </div>
         <p style={{ fontSize: 14, color: "#555", lineHeight: 1.7, marginBottom: 16 }}>{hazard.body}</p>
@@ -437,12 +437,9 @@ function GuidelinesTab() {
       <SectionHeader title="Generella riktlinjer" subtitle="Hur vi flyger på Åreskutan" />
       <div style={{ marginBottom: 8 }}>
         {GUIDELINES.map((g, i) => (
-          <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start", padding: "14px 0", borderBottom: i < GUIDELINES.length - 1 ? "0.5px solid #f0ede6" : "none" }}>
-            <span style={{ fontSize: 11, fontWeight: 500, color: "#ccc", minWidth: 22, paddingTop: 2 }}>{g.n}</span>
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 500, color: "#1a1a1a", marginBottom: 3 }}>{g.title}</div>
-              <div style={{ fontSize: 14, color: "#555", lineHeight: 1.6 }}>{g.body}</div>
-            </div>
+          <div key={i} style={{ padding: "14px 0", borderBottom: i < GUIDELINES.length - 1 ? "0.5px solid #f0ede6" : "none", textAlign: "center" }}>
+            <div style={{ fontSize: 15, fontWeight: 500, color: "#1a1a1a", marginBottom: 4 }}>{g.title}</div>
+            <div style={{ fontSize: 14, color: "#555", lineHeight: 1.6 }}>{g.body}</div>
           </div>
         ))}
       </div>
@@ -464,7 +461,7 @@ function LandingModal({ site, onClose }) {
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }} onClick={onClose}>
       <div style={{ background: "#fff", borderRadius: 16, padding: 32, maxWidth: 540, width: "100%", maxHeight: "85vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 500, margin: 0 }}>{site.name}</h2>
+          <h2 style={{ fontSize: 22, fontWeight: 500, margin: 0, color: "#111" }}>{site.name}</h2>
           <button onClick={onClose} style={{ border: "none", background: "none", fontSize: 20, cursor: "pointer", color: "#888" }}>✕</button>
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
