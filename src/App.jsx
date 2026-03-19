@@ -46,6 +46,8 @@ function mapIncident(row) {
     lessonLearned: row.lesson_learned || "",
     weather: row.weather || null,
     imagePreviews: row.image_urls || [],
+    equipment: row.equipment || "",
+    launchType: row.launch_type || "",
   };
 }
 
@@ -380,7 +382,7 @@ function LandingsTab() {
 // ─── INCIDENTS ────────────────────────────────────────────────────────────────
 
 function IncidentForm({ onSubmit }) {
-  const [form, setForm] = useState({ date: "", time: "", launchId: "", pilotExperience: "", incidentType: "", perceivedWind: "", perceivedWindDir: "", description: "", injuries: "Inga", lessonLearned: "" });
+  const [form, setForm] = useState({ date: "", time: "", launchId: "", pilotExperience: "", incidentType: "", perceivedWind: "", perceivedWindDir: "", description: "", injuries: "Inga", lessonLearned: "", equipment: "", launchType: "" });
   const [weather, setWeather] = useState(null);
   const [loadingWeather, setLoadingWeather] = useState(false);
   const [weatherError, setWeatherError] = useState("");
@@ -419,7 +421,7 @@ function IncidentForm({ onSubmit }) {
     await new Promise(r => setTimeout(r, 600));
     onSubmit({ ...form, weather, imagePreviews, id: Date.now() });
     setSubmitting(false);
-    setForm({ date: "", time: "", launchId: "", pilotExperience: "", incidentType: "", perceivedWind: "", perceivedWindDir: "", description: "", injuries: "Inga", lessonLearned: "" });
+    setForm({ date: "", time: "", launchId: "", pilotExperience: "", incidentType: "", perceivedWind: "", perceivedWindDir: "", description: "", injuries: "Inga", lessonLearned: "", equipment: "", launchType: "" });
     setWeather(null); setImageFiles([]); setImagePreviews([]);
   };
 
@@ -471,7 +473,7 @@ function IncidentForm({ onSubmit }) {
       <div style={{ marginBottom: 16 }}><label style={lbl}>Pilotens erfarenhet</label>
         <select value={form.pilotExperience} onChange={e => set("pilotExperience", e.target.value)} style={inp}>
           <option value="">Välj (valfritt)</option>
-          {[["nybörjare", "Nybörjare (<1 år)"], ["mellannivå", "Mellannivå (1–3 år)"], ["erfaren", "Erfaren (3+ år)"], ["proffs", "Tävlings/proffs"]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          {[["1-50", "1–50 speedflyg"], ["50-100", "50–100 speedflyg"], ["100-300", "100–300 speedflyg"], ["300-500", "300–500 speedflyg"], ["500+", "500+ speedflyg"]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
       </div>
 
@@ -480,6 +482,21 @@ function IncidentForm({ onSubmit }) {
           {["Inga", "Lindriga", "Allvarliga"].map(opt => (
             <label key={opt} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, cursor: "pointer", color: "#444" }}>
               <input type="radio" name="injuries" value={opt} checked={form.injuries === opt} onChange={e => set("injuries", e.target.value)} />{opt}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 16 }}><label style={lbl}>Utrustning</label>
+        <input type="text" value={form.equipment} onChange={e => set("equipment", e.target.value)} placeholder="t.ex. Gin Fluid 10m², hjälm XYZ" style={inp} />
+      </div>
+
+      <div style={{ marginBottom: 16 }}><label style={lbl}>Start med</label>
+        <div style={{ display: "flex", gap: 16 }}>
+          {["foot", "ski"].map(opt => (
+            <label key={opt} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, cursor: "pointer", color: "#444" }}>
+              <input type="radio" name="launchType" value={opt} checked={form.launchType === opt} onChange={e => set("launchType", e.target.value)} />
+              {opt === "foot" ? "🥾 Foot" : "🎿 Ski"}
             </label>
           ))}
         </div>
@@ -535,6 +552,10 @@ function IncidentCard({ incident }) {
       </div>
       <p style={{ fontSize: 14, color: "#444", lineHeight: 1.6, margin: "0 0 8px" }}>{incident.description}</p>
       {incident.lessonLearned && <div style={{ borderTop: "0.5px solid #f0ede6", paddingTop: 10, marginTop: 10 }}><div style={{ fontSize: 12, fontWeight: 500, color: "#999", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.04em" }}>Lärdom</div><p style={{ fontSize: 13, color: "#666", lineHeight: 1.5, margin: 0 }}>{incident.lessonLearned}</p></div>}
+      {(incident.equipment || incident.launchType) && <div style={{ borderTop: "0.5px solid #f0ede6", paddingTop: 10, marginTop: 10, display: "flex", gap: 16 }}>
+        {incident.equipment && <div><div style={{ fontSize: 12, fontWeight: 500, color: "#999", marginBottom: 2, textTransform: "uppercase", letterSpacing: "0.04em" }}>Utrustning</div><div style={{ fontSize: 13, color: "#555" }}>{incident.equipment}</div></div>}
+        {incident.launchType && <div><div style={{ fontSize: 12, fontWeight: 500, color: "#999", marginBottom: 2, textTransform: "uppercase", letterSpacing: "0.04em" }}>Start</div><div style={{ fontSize: 13, color: "#555" }}>{incident.launchType === "foot" ? "🥾 Foot" : "🎿 Ski"}</div></div>}
+      </div>}
       {(incident.perceivedWind || incident.perceivedWindDir) && <div style={{ borderTop: "0.5px solid #f0ede6", paddingTop: 10, marginTop: 10 }}><div style={{ fontSize: 12, fontWeight: 500, color: "#999", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.04em" }}>Upplevd vind vid start</div><div style={{ fontSize: 13, color: "#555" }}>{incident.perceivedWind && `${incident.perceivedWind} m/s `}{incident.perceivedWindDir}</div></div>}
       {incident.weather && (
         <div style={{ borderTop: "0.5px solid #f0ede6", paddingTop: 10, marginTop: 10 }}>
@@ -565,6 +586,7 @@ function IncidentsTab() {
       perceived_wind: inc.perceivedWind, perceived_wind_dir: inc.perceivedWindDir,
       description: inc.description, injuries: inc.injuries,
       lesson_learned: inc.lessonLearned, weather: inc.weather,
+      equipment: inc.equipment, launch_type: inc.launchType,
       image_urls: [],
     };
     const { data, error } = await supabase.from("incidents").insert([row]).select().single();
