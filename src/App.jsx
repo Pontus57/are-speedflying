@@ -349,7 +349,7 @@ function LaunchesTab() {
   const filtered = launches.filter(l => (windFilter === "Alla" || l.wind.includes(windFilter)) && (seasonFilter === "Alla" || l.season === seasonFilter || l.season === "both"));
   return (
     <div>
-      <SectionHeader title="Starter" subtitle="Alla kända starter på Årefjället" />
+      <SectionHeader title="Starter" subtitle="De mest etablerade starterna för speed på Åreskutan." />
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20, alignItems: "center" }}>
         <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>{seasonOpts.map(o => <FilterBtn key={o.v} active={seasonFilter === o.v} onClick={() => setSeasonFilter(o.v)}>{o.l}</FilterBtn>)}</div>
         <div style={{ width: "0.5px", height: 20, background: "#e5e2d9" }} />
@@ -413,7 +413,7 @@ function GuidelinesTab() {
     <div>
       <div style={{ background: "#f8f7f4", border: "0.5px solid #e5e2d9", borderRadius: 12, padding: "18px 20px", marginBottom: 32 }}>
         <div style={{ fontSize: 16, fontWeight: 500, color: "#1a1a1a", marginBottom: 6 }}>Ny på berget? Börja här!</div>
-        <div style={{ fontSize: 14, color: "#555", lineHeight: 1.6 }}>Här hittar du allmänna flygregler samt kända faror och hinder för flygning på Åreskutan.</div>
+        <div style={{ fontSize: 14, color: "#555", lineHeight: 1.6 }}>Här hittar du allmänna riktlinjer för flygning samt kända faror och hinder på Åreskutan.</div>
       </div>
 
       <SectionHeader title="Faror & hinder" subtitle="Notera att det kan finnas hinder som inte finns listade här, eller temporära faror." />
@@ -503,7 +503,7 @@ function LandingsTab() {
   const filtered = LANDING_SITES.filter(s => sf === "Alla" || s.season === sf || s.season === "both");
   return (
     <div>
-      <SectionHeader title="Landningar" subtitle="Godkända och rekommenderade landningszoner" />
+      <SectionHeader title="Landningar" subtitle="Om du inte är en erfaren pilot är Draklanda den enda landningen du ska överväga." />
       <div style={{ display: "flex", gap: 4, marginBottom: 20 }}>{opts.map(o => <FilterBtn key={o.v} active={sf === o.v} onClick={() => setSf(o.v)}>{o.l}</FilterBtn>)}</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px,1fr))", gap: 12 }}>
         {filtered.map((s, i) => (
