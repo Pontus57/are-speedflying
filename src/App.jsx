@@ -1,6 +1,12 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
 
-const LAUNCHES = [
+const SUPABASE_URL = "https://pmcaffqqkvqnvpvbaknn.supabase.co";
+const SUPABASE_KEY = "sb_publishable_kkv5I29McgRZwisITrnHXg_boKc820N";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Fallback data used only if Supabase is unreachable
+const LAUNCHES_FALLBACK = [
   { id: 1, name: "1000meter", description: "Klassisk paraglide start. En av bergets mest etablerade startplatser.", wind: ["Östlig"], season: "both", difficultyMatrix: { winter: { low: "Lätt", mid: "Lätt", high: "Medel" }, summer: { low: "Medel", mid: "Lätt", high: "Lätt" } }, coords: { lat: 63.3950, lng: 13.0820 } },
   { id: 2, name: "Rappet Standard", description: "", wind: [], season: "both", difficultyMatrix: { winter: { low: "Lätt", mid: "Lätt", high: "Medel" }, summer: { low: "Medel", mid: "Medel", high: "Lätt" } }, coords: { lat: 63.3980, lng: 13.0780 } },
   { id: 3, name: "Rappet Stenrös", description: "Avancerad start i lite vind på sommaren – kräver snabb löpning ned för stenrös. I 5 m/s räcker det att glida ned. På vintern med skidor är det enkelt.", wind: [], season: "both", difficultyMatrix: { winter: { low: "Lätt", mid: "Lätt", high: "Medel" }, summer: { low: "Avancerad", mid: "Medel", high: "Medel" } }, coords: { lat: 63.3990, lng: 13.0760 } },
@@ -11,6 +17,38 @@ const LAUNCHES = [
   { id: 8, name: "Pelikan", description: "", wind: [], season: "both", difficultyMatrix: { winter: { low: "Medel", mid: "Lätt", high: "Medel" }, summer: { low: "Avancerad", mid: "Medel", high: "Medel" } }, coords: { lat: 63.4060, lng: 13.0730 } },
   { id: 9, name: "Lundsrappet", description: "", wind: [], season: "both", difficultyMatrix: { winter: { low: "Lätt", mid: "Lätt", high: "Medel" }, summer: { low: "Medel", mid: "Medel", high: "Medel" } }, coords: { lat: 63.3930, lng: 13.0800 } },
 ];
+
+// Map Supabase row -> app shape
+function mapLaunch(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description || "",
+    wind: row.wind || [],
+    season: row.season || "both",
+    difficultyMatrix: row.difficulty_matrix || null,
+    coords: row.coords || { lat: 63.4, lng: 13.08 },
+  };
+}
+
+function mapIncident(row) {
+  return {
+    id: row.id,
+    date: row.date || "",
+    time: row.time || "",
+    launchId: row.launch_id || "",
+    pilotExperience: row.pilot_experience || "",
+    incidentType: row.incident_type || "",
+    perceivedWind: row.perceived_wind || "",
+    perceivedWindDir: row.perceived_wind_dir || "",
+    description: row.description || "",
+    injuries: row.injuries || "Inga",
+    lessonLearned: row.lesson_learned || "",
+    weather: row.weather || null,
+    imagePreviews: row.image_urls || [],
+  };
+}
+
 
 const WIND_COLORS = { "Östlig": "#3B8BD4", "Västlig": "#1D9E75", "Sydlig": "#EF9F27", "Nordlig": "#D85A30", "Nord-Östlig": "#7F77DD", "Syd-Östlig": "#D4537E" };
 const DIFF_STYLE = { "Lätt": { bg: "#eaf3de", color: "#3B6D11" }, "Medel": { bg: "#faeeda", color: "#854F0B" }, "Avancerad": { bg: "#fcebeb", color: "#A32D2D" } };
@@ -244,9 +282,19 @@ function LaunchesTab() {
   const [selected, setSelected] = useState(null);
   const [windFilter, setWindFilter] = useState("Alla");
   const [seasonFilter, setSeasonFilter] = useState("Alla");
+  const [launches, setLaunches] = useState(LAUNCHES_FALLBACK);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.from("launches").select("*").order("id").then(({ data, error }) => {
+      if (data && !error) setLaunches(data.map(mapLaunch));
+      setLoading(false);
+    });
+  }, []);
+
   const windOpts = ["Alla", ...Object.keys(WIND_COLORS)];
   const seasonOpts = [{ v: "Alla", l: "Alla säsonger" }, { v: "winter", l: "❄️ Vinter" }, { v: "summer", l: "☀️ Sommar" }];
-  const filtered = LAUNCHES.filter(l => (windFilter === "Alla" || l.wind.includes(windFilter)) && (seasonFilter === "Alla" || l.season === seasonFilter || l.season === "both"));
+  const filtered = launches.filter(l => (windFilter === "Alla" || l.wind.includes(windFilter)) && (seasonFilter === "Alla" || l.season === seasonFilter || l.season === "both"));
   return (
     <div>
       <SectionHeader title="Starter" subtitle="Alla kända starter på Årefjället" />
@@ -268,7 +316,8 @@ function LaunchesTab() {
           </div>
         ))}
       </div>
-      {filtered.length === 0 && <p style={{ color: "#bbb", textAlign: "center", padding: 40 }}>Inga starter matchar filtret.</p>}
+      {loading && <p style={{ color: "#bbb", textAlign: "center", padding: 40 }}>Laddar starter...</p>}
+      {!loading && filtered.length === 0 && <p style={{ color: "#bbb", textAlign: "center", padding: 40 }}>Inga starter matchar filtret.</p>}
       <LaunchModal launch={selected} onClose={() => setSelected(null)} />
     </div>
   );
@@ -407,7 +456,7 @@ function IncidentForm({ onSubmit }) {
       <div style={{ marginBottom: 16 }}><label style={lbl}>Start</label>
         <select value={form.launchId} onChange={e => set("launchId", e.target.value)} style={inp}>
           <option value="">Välj start (valfritt)</option>
-          {LAUNCHES.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+          {LAUNCHES_FALLBACK.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
           <option value="annan">Annan / okänd</option>
         </select>
       </div>
@@ -471,7 +520,7 @@ function IncidentForm({ onSubmit }) {
 }
 
 function IncidentCard({ incident }) {
-  const launchName = incident.launchId ? (LAUNCHES.find(l => l.id == incident.launchId)?.name || "Annan") : null;
+  const launchName = incident.launchId ? (LAUNCHES_FALLBACK.find(l => l.id == incident.launchId)?.name || "Annan") : null;
   const typeLabels = { kollision: "Kollision", kollaps: "Vingekollaps", landning: "Hård landning", startproblem: "Startproblem", navigering: "Navigeringsproblem", utrustning: "Utrustningsfel", nara_ogat: "Nära ögat", annat: "Annat" };
   const injuryColor = { Inga: "#3B6D11", Lindriga: "#854F0B", Allvarliga: "#A32D2D" };
   return (
@@ -498,27 +547,46 @@ function IncidentCard({ incident }) {
 }
 
 function IncidentsTab() {
-  const DEMO = [{
-    id: 0, date: "2025-12-14", time: "13:45", launchId: 1, pilotExperience: "mellannivå",
-    incidentType: "kollaps", injuries: "Inga", perceivedWind: "6", perceivedWindDir: "Östlig",
-    lessonLearned: "Kolla alltid turbulensförhållanden vid östlig vind – rotorvind bakom Snasahögarna är underskattad.",
-    description: "Vingekollaps på ca 80m höjd vid avvinkling mot Centrumplan. Vingen återhämtade sig utan insats men gav en ordentlig hjärtstöt. Vinden hade dragit runt från NO till O under flygningen.",
-    weather: { temperature: -8, windspeed: 6.1, windgusts: 9.4, winddirection: 95, precipitation: 0, weathercode: 1, _meta: { date: "2025-12-14", hour: 13, datetime: "2025-12-14T13:00" } },
-    imagePreviews: []
-  }];
   const [view, setView] = useState("list");
-  const [incidents, setIncidents] = useState(DEMO);
+  const [incidents, setIncidents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.from("incidents").select("*").order("created_at", { ascending: false }).then(({ data, error }) => {
+      if (data && !error) setIncidents(data.map(mapIncident));
+      setLoading(false);
+    });
+  }, []);
+
+  const handleSubmit = async (inc) => {
+    const row = {
+      date: inc.date, time: inc.time, launch_id: inc.launchId,
+      pilot_experience: inc.pilotExperience, incident_type: inc.incidentType,
+      perceived_wind: inc.perceivedWind, perceived_wind_dir: inc.perceivedWindDir,
+      description: inc.description, injuries: inc.injuries,
+      lesson_learned: inc.lessonLearned, weather: inc.weather,
+      image_urls: [],
+    };
+    const { data, error } = await supabase.from("incidents").insert([row]).select().single();
+    if (data && !error) {
+      setIncidents(p => [mapIncident(data), ...p]);
+    } else {
+      setIncidents(p => [inc, ...p]);
+    }
+    setView("list");
+  };
+
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
-        <div><h2 style={{ fontSize: 22, fontWeight: 500, margin: "0 0 4px", color: "#1a1a1a" }}>Incidentrapporter</h2><p style={{ fontSize: 14, color: "#888", margin: 0 }}>{incidents.length} rapport{incidents.length !== 1 ? "er" : ""}</p></div>
+        <div><h2 style={{ fontSize: 22, fontWeight: 500, margin: "0 0 4px", color: "#1a1a1a" }}>Incidentrapporter</h2><p style={{ fontSize: 14, color: "#888", margin: 0 }}>{loading ? "Laddar..." : `${incidents.length} rapport${incidents.length !== 1 ? "er" : ""}`}</p></div>
         <button onClick={() => setView(v => v === "form" ? "list" : "form")} style={{ padding: "9px 18px", border: "0.5px solid #d5d2c9", borderRadius: 8, background: view === "form" ? "#f0ede6" : "#fff", color: "#1a1a1a", fontSize: 14, cursor: "pointer" }}>
           {view === "form" ? "← Tillbaka" : "+ Ny rapport"}
         </button>
       </div>
       {view === "form"
-        ? <IncidentForm onSubmit={inc => { setIncidents(p => [inc, ...p]); setView("list"); }} />
-        : <div style={{ display: "grid", gap: 12 }}>{incidents.map(inc => <IncidentCard key={inc.id} incident={inc} />)}</div>
+        ? <IncidentForm onSubmit={handleSubmit} />
+        : <div style={{ display: "grid", gap: 12 }}>{loading ? <p style={{ color: "#bbb", textAlign: "center", padding: 40 }}>Laddar rapporter...</p> : incidents.length === 0 ? <p style={{ color: "#bbb", textAlign: "center", padding: 40 }}>Inga rapporter ännu.</p> : incidents.map(inc => <IncidentCard key={inc.id} incident={inc} />)}</div>
       }
     </div>
   );
