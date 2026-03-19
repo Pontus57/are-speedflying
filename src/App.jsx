@@ -74,9 +74,36 @@ const ETIQUETTE = [
 ];
 
 const LANDING_SITES = [
-  { name: "Centrumplan", description: "Bred öppen yta i centrala Åre. Används frekvent. God sikt från alla håll.", wind: "Alla riktningar", size: "Stor", season: "both" },
-  { name: "Björnänge", description: "Alternativ landning söder om byn. Bra vid sydvästliga vindar.", wind: "SV–V", size: "Medium", season: "both" },
-  { name: "Rödkullen nedfart", description: "Nödlandning vid tekniska problem. Smal korridor – kräver precision.", wind: "Nordlig", size: "Liten", season: "winter" },
+  {
+    name: "Draklanda",
+    description: "Standardlandningsfält för paraglide och speed. Används frekvent av alla flygare.",
+    wind: "Alla riktningar", size: "Stor", difficulty: "Lätt", season: "both",
+    coords: { lat: 63.402596780135624, lng: 13.054742892672547 }, images: [] 
+  },
+  {
+    name: "Kyrkan",
+    description: "Mellanstort gräsfält – störst yta när man landar söderut eller norrut. Se upp för folk. Omringat av byggnader och träd.",
+    wind: "Alla riktningar", size: "Mellan", difficulty: "Teknisk", season: "both",
+    coords: { lat: 63.397563857988985, lng: 13.082708784404597 }, images: []
+  },
+  {
+    name: "Playa de la Swoop",
+    description: "Tekniskt sett en del av Draklanda, men med låg inflygning över sjön och upp på stranden. Här ligger folk och solar på fina dagar, se upp. I vattnet och på stranden lurar även stora och små stenar.",
+    wind: "Alla riktningar", size: "Mellan", difficulty: "Teknisk", season: "summer",
+    coords: { lat: 63.40214438378909, lng: 13.05558122176314 }, images: []
+  },
+  {
+    name: "Holiday-stranden",
+    description: "Precis öster om Holiday finns en större strip av stranden att landa på. Rimligast på östlig vind. På fina dagar kan det vara mycket folk på stranden.",
+    wind: "Östlig", size: "Mellan", difficulty: "Teknisk", season: "summer",
+    coords: { lat: 63.39676420159445, lng: 13.075332777603768 }, images: []
+  },
+  {
+    name: "VM-platån",
+    description: "VM-platån kan vara en bra landningsyta främst under vintern om man inte vill flyga hela vägen ned. Se upp för skidåkare och ojämn terräng. Fungerar på sommaren, men mer teknisk och mindre rimligt val.",
+    wind: "Alla riktningar", size: "Stor", difficulty: "Lite teknisk", season: "winter",
+    coords: { lat: 63.422061892779894, lng: 13.051491704371472 }, images: []
+  },
 ];
 
 // ─── WEATHER ──────────────────────────────────────────────────────────────────
@@ -352,8 +379,53 @@ function GuidelinesTab() {
 
 // ─── LANDINGS ─────────────────────────────────────────────────────────────────
 
+function LandingModal({ site, onClose }) {
+  if (!site) return null;
+  const gUrl = `https://www.google.com/maps?q=${site.coords.lat},${site.coords.lng}`;
+  const aUrl = `https://maps.apple.com/?ll=${site.coords.lat},${site.coords.lng}&q=${encodeURIComponent(site.name)}`;
+  const mapBtn = { padding: "8px 14px", borderRadius: 8, border: "0.5px solid #d5d2c9", fontSize: 13, color: "#1a1a1a", textDecoration: "none", background: "#fff", display: "inline-flex", alignItems: "center", gap: 6 };
+  const ds = DIFF_STYLE[site.difficulty] || { bg: "#f0f0e8", color: "#666" };
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }} onClick={onClose}>
+      <div style={{ background: "#fff", borderRadius: 16, padding: 32, maxWidth: 540, width: "100%", maxHeight: "85vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+          <h2 style={{ fontSize: 22, fontWeight: 500, margin: 0 }}>{site.name}</h2>
+          <button onClick={onClose} style={{ border: "none", background: "none", fontSize: 20, cursor: "pointer", color: "#888" }}>✕</button>
+        </div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+          <SeasonBadge season={site.season} />
+        </div>
+        <p style={{ fontSize: 14, color: "#555", lineHeight: 1.6, marginBottom: 16 }}>{site.description}</p>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 }}>
+          <span style={{ fontSize: 12, background: "#f0f0e8", padding: "2px 8px", borderRadius: 4, color: "#666" }}>{site.size}</span>
+          {site.difficulty && <span style={{ fontSize: 12, background: ds.bg, padding: "2px 8px", borderRadius: 4, color: ds.color }}>{site.difficulty}</span>}
+          <span style={{ fontSize: 12, background: "#e8f3fb", padding: "2px 8px", borderRadius: 4, color: "#3B8BD4" }}>Vind: {site.wind}</span>
+        </div>
+        {site.images && site.images.length > 0 && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px,1fr))", gap: 8, marginBottom: 20 }}>
+            {site.images.map((src, i) => (
+              <img key={i} src={src} alt="" style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", borderRadius: 8, border: "0.5px solid #e5e2d9" }} />
+            ))}
+          </div>
+        )}
+        {(!site.images || site.images.length === 0) && (
+          <div style={{ background: "#f8f7f4", borderRadius: 8, padding: 12, textAlign: "center", color: "#bbb", fontSize: 13, marginBottom: 20 }}>📷 Bilder kommer snart</div>
+        )}
+        <div style={{ borderTop: "0.5px solid #f0ede6", paddingTop: 14 }}>
+          <div style={{ fontSize: 12, fontWeight: 500, color: "#999", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.04em" }}>Öppna i kartor</div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <a href={gUrl} target="_blank" rel="noopener noreferrer" style={mapBtn}>🗺 Google Maps</a>
+            <a href={aUrl} target="_blank" rel="noopener noreferrer" style={mapBtn}>🍎 Apple Maps</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LandingsTab() {
   const [sf, setSf] = useState("Alla");
+  const [selected, setSelected] = useState(null);
   const opts = [{ v: "Alla", l: "Alla säsonger" }, { v: "winter", l: "❄️ Vinter" }, { v: "summer", l: "☀️ Sommar" }];
   const filtered = LANDING_SITES.filter(s => sf === "Alla" || s.season === sf || s.season === "both");
   return (
@@ -362,19 +434,22 @@ function LandingsTab() {
       <div style={{ display: "flex", gap: 4, marginBottom: 20 }}>{opts.map(o => <FilterBtn key={o.v} active={sf === o.v} onClick={() => setSf(o.v)}>{o.l}</FilterBtn>)}</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px,1fr))", gap: 12 }}>
         {filtered.map((s, i) => (
-          <div key={i} style={{ background: "#fff", border: "0.5px solid #e5e2d9", borderRadius: 12, padding: "16px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
+          <div key={i} onClick={() => setSelected(s)} style={{ background: "#fff", border: "0.5px solid #e5e2d9", borderRadius: 12, padding: "16px 20px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 8 }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.08)"} onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <span style={{ fontSize: 15, fontWeight: 500, color: "#1a1a1a" }}>{s.name}</span>
               <SeasonBadge season={s.season} />
             </div>
-            <p style={{ fontSize: 13, color: "#666", lineHeight: 1.5, margin: 0 }}>{s.description}</p>
-            <div style={{ display: "flex", gap: 6 }}>
+            <p style={{ fontSize: 13, color: "#666", lineHeight: 1.5, margin: 0 }}>{s.description.slice(0, 80)}{s.description.length > 80 ? "…" : ""}</p>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               <span style={{ fontSize: 12, background: "#f0f0e8", padding: "2px 8px", borderRadius: 4, color: "#666" }}>{s.size}</span>
+              {s.difficulty && (() => { const ds = DIFF_STYLE[s.difficulty] || { bg: "#f0f0e8", color: "#666" }; return <span style={{ fontSize: 12, background: ds.bg, padding: "2px 8px", borderRadius: 4, color: ds.color }}>{s.difficulty}</span>; })()}
               <span style={{ fontSize: 12, background: "#e8f3fb", padding: "2px 8px", borderRadius: 4, color: "#3B8BD4" }}>Vind: {s.wind}</span>
             </div>
           </div>
         ))}
       </div>
+      <LandingModal site={selected} onClose={() => setSelected(null)} />
     </div>
   );
 }
