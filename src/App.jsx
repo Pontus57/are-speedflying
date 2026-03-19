@@ -7,15 +7,16 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Fallback data used only if Supabase is unreachable
 const LAUNCHES_FALLBACK = [
-  { id: 1, name: "1000meter", description: "Klassisk paraglide start. En av bergets mest etablerade startplatser.", wind: ["Östlig"], season: "both", difficultyMatrix: { winter: { low: "Lätt", mid: "Lätt", high: "Medel" }, summer: { low: "Medel", mid: "Lätt", high: "Lätt" } }, coords: { lat: 63.3950, lng: 13.0820 } },
-  { id: 2, name: "Rappet Standard", description: "", wind: [], season: "both", difficultyMatrix: { winter: { low: "Lätt", mid: "Lätt", high: "Medel" }, summer: { low: "Medel", mid: "Medel", high: "Lätt" } }, coords: { lat: 63.3980, lng: 13.0780 } },
-  { id: 3, name: "Rappet Stenrös", description: "Avancerad start i lite vind på sommaren – kräver snabb löpning ned för stenrös. I 5 m/s räcker det att glida ned. På vintern med skidor är det enkelt.", wind: [], season: "both", difficultyMatrix: { winter: { low: "Lätt", mid: "Lätt", high: "Medel" }, summer: { low: "Avancerad", mid: "Medel", high: "Medel" } }, coords: { lat: 63.3990, lng: 13.0760 } },
-  { id: 4, name: "1420", description: "", wind: [], season: "both", difficultyMatrix: { winter: { low: "Medel", mid: "Lätt", high: "Medel" }, summer: { low: "Medel", mid: "Medel", high: "Medel" } }, coords: { lat: 63.4010, lng: 13.0710 } },
-  { id: 5, name: "Hummeln Ost", description: "", wind: ["Östlig"], season: "winter", difficultyMatrix: { winter: { low: "Medel", mid: "Lätt", high: "Lätt" }, summer: null }, coords: { lat: 63.4030, lng: 13.0850 } },
-  { id: 6, name: "Hummeln Väst", description: "", wind: ["Västlig"], season: "winter", difficultyMatrix: { winter: { low: "Medel", mid: "Lätt", high: "Lätt" }, summer: null }, coords: { lat: 63.4030, lng: 13.0680 } },
-  { id: 7, name: "Hummeln Syd", description: "", wind: ["Sydlig"], season: "both", difficultyMatrix: { winter: { low: "Lätt", mid: "Lätt", high: "Medel" }, summer: { low: "Medel", mid: "Lätt", high: "Medel" } }, coords: { lat: 63.4010, lng: 13.0770 } },
-  { id: 8, name: "Pelikan", description: "", wind: [], season: "both", difficultyMatrix: { winter: { low: "Medel", mid: "Lätt", high: "Medel" }, summer: { low: "Avancerad", mid: "Medel", high: "Medel" } }, coords: { lat: 63.4060, lng: 13.0730 } },
-  { id: 9, name: "Lundsrappet", description: "", wind: [], season: "both", difficultyMatrix: { winter: { low: "Lätt", mid: "Lätt", high: "Medel" }, summer: { low: "Medel", mid: "Medel", high: "Medel" } }, coords: { lat: 63.3930, lng: 13.0800 } },
+  { id: 1, name: "1000meter", description: "Klassisk PG-start. Bra utrymme att lägga ut och springa på. Branten ökar mot slutet – se till att ha bra tryck i skärmen mot sista biten.", wind: ["Östlig"], season: "both", difficultyMatrix: { winter: { low: "Medel", mid: "Lätt", high: "Medel" }, summer: { low: "Medel", mid: "Lätt", high: "Medel" } }, coords: { lat: 63.3950, lng: 13.0820 } },
+  { id: 2, name: "Rappet Väst", description: "Rimligt lång sträcka att springa på, gräs i ökande lutning som övergår till en brantare klippa. Se till att ha tryck i skärmen i god tid, eller avbryt i god tid innan klippan. Vid för mycket nordliga inslag kan man uppleva sjunk efter start – risk att slå i marken ca 20 meter under start. Ha god koll på din skärm och lokala vindar vid nordvästlig vind.", wind: ["Västlig", "Nord-Västlig"], season: "both", difficultyMatrix: { winter: { low: "Medel", mid: "Lätt", high: "Medel" }, summer: { low: "Medel", mid: "Lätt", high: "Medel" } }, coords: { lat: 63.3980, lng: 13.0780 } },
+  { id: 3, name: "Rappet Syd", description: "Teknisk start om sommaren vid lite vind – saknas bra ställe att lägga ut skärm och du behöver springa utför ett stenrös. Vid tillräcklig vind för balansering kan du lägga ut skärmen i gräset precis väster om stenröset, balansera där och sedan ställa dig i position med skärm över huvudet innan du springer ut för stenröset.", wind: ["Sydlig"], season: "both", difficultyMatrix: { winter: { low: "Medel", mid: "Medel", high: "Medel" }, summer: { low: "Avancerad", mid: "Medel", high: "Medel" } }, coords: { lat: 63.3990, lng: 13.0760 } },
+  { id: 4, name: "1420", description: "", wind: [], season: "both", difficultyMatrix: null, coords: { lat: 63.4010, lng: 13.0710 } },
+  { id: 5, name: "Hummeln Ost", description: "Klassiska Hummeln-starten med bra utrymme att lägga ut skärm och springa. Vid lite vind behöver du parera för ojämnheter i backen. Branten avbryts av en stig, sedan flackar det ut innan det brantar på igen och träd börjar komma. Vid nollvind behöver du springa rejält.", wind: ["Östlig"], season: "both", difficultyMatrix: { winter: { low: "Medel", mid: "Lätt", high: "Medel" }, summer: { low: "Avancerad", mid: "Lätt", high: "Medel" } }, coords: { lat: 63.4030, lng: 13.0850 } },
+  { id: 6, name: "Hummeln Väst", description: "Brant och fin start. Finns möjligheter att lägga ut skärm på platta partier innan branten.", wind: ["Västlig"], season: "both", difficultyMatrix: { winter: { low: "Medel", mid: "Lätt", high: "Medel" }, summer: { low: "Medel", mid: "Lätt", high: "Medel" } }, coords: { lat: 63.4030, lng: 13.0680 } },
+  { id: 7, name: "Hummeln Syd", description: "Förhållandevis kort start – du behöver passera ett downhillspår. Vid lägre vind kan det vara en god idé att lägga ut skärmen högre upp mot Åre-skylten. Spring upp tryck i skärmen och ha klara kontroller innan branten kommer.", wind: ["Sydlig"], season: "both", difficultyMatrix: { winter: { low: "Avancerad", mid: "Medel", high: "Medel" }, summer: { low: "Avancerad", mid: "Medel", high: "Medel" } }, coords: { lat: 63.4010, lng: 13.0770 } },
+  { id: 8, name: "Pelikan", description: "Nordöstra delen av Hummeln. Lång och brant start – vid lägre vind kan man med fördel börja springa längre upp i närheten av Åre-skylten.", wind: ["Nord-Östlig"], season: "both", difficultyMatrix: { winter: { low: "Medel", mid: "Lätt", high: "Medel" }, summer: { low: "Medel", mid: "Lätt", high: "Medel" } }, coords: { lat: 63.4060, lng: 13.0730 } },
+  { id: 9, name: "Lundsrappet", description: "Ingen kanonstart, men funkar. Praktisk om gondolen är stängd och man vill ta några snabba varv i VM8:an. Lättare på skidor. Funkar när det är folktomt. Se upp för stora stenpartier om sommaren.", wind: ["Sydlig"], season: "both", difficultyMatrix: { winter: { low: "Medel", mid: "Medel", high: "Medel" }, summer: { low: "Avancerad", mid: "Medel", high: "Medel" } }, coords: { lat: 63.3930, lng: 13.0800 } },
+  { id: 10, name: "Övre Rappet", description: "Lämpar sig bättre för vintern då du får en lång sträcka att åka skidor innan du lämnar marken. Man kan gå ned en bit för bättre startriktning vid nordliga inslag – gå nedåt lite sydväst från huvudstarten där lutningen är mer nordväst. Om sommaren finns ingen anledning att välja denna start över någon av de andra.", wind: ["Västlig", "Nord-Västlig"], season: "both", difficultyMatrix: { winter: { low: "Medel", mid: "Lätt", high: "Medel" }, summer: { low: "Avancerad", mid: "Avancerad", high: "Medel" } }, coords: { lat: 63.3970, lng: 13.0770 } },
 ];
 
 // Map Supabase row -> app shape
@@ -52,7 +53,7 @@ function mapIncident(row) {
 }
 
 
-const WIND_COLORS = { "Östlig": "#3B8BD4", "Västlig": "#1D9E75", "Sydlig": "#EF9F27", "Nordlig": "#D85A30", "Nord-Östlig": "#7F77DD", "Syd-Östlig": "#D4537E" };
+const WIND_COLORS = { "Östlig": "#3B8BD4", "Västlig": "#1D9E75", "Sydlig": "#EF9F27", "Nordlig": "#D85A30", "Nord-Östlig": "#7F77DD", "Syd-Östlig": "#D4537E", "Nord-Västlig": "#0F6E56" };
 const DIFF_STYLE = { "Lätt": { bg: "#eaf3de", color: "#3B6D11" }, "Medel": { bg: "#faeeda", color: "#854F0B" }, "Avancerad": { bg: "#fcebeb", color: "#A32D2D" } };
 
 const HAZARDS = [
@@ -688,7 +689,7 @@ function IncidentCard({ incident }) {
   const typeLabels = { kollision: "Kollision", kollaps: "Vingekollaps", landning: "Hård landning", startproblem: "Startproblem", navigering: "Navigeringsproblem", utrustning: "Utrustningsfel", nara_ogat: "Nära ögat", annat: "Annat" };
   const injuryColor = { Inga: "#3B6D11", Lindriga: "#854F0B", Allvarliga: "#A32D2D" };
   return (
-    <div style={{ background: "#fff", border: "0.5px solid #e5e2d9", borderRadius: 12, padding: "18px 20px" }}>
+    <div style={{ background: "#fff", border: "1px solid #c8c5bc", borderRadius: 12, padding: "18px 20px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10, flexWrap: "wrap", gap: 6 }}>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           <span style={{ fontSize: 12, padding: "2px 8px", borderRadius: 4, background: "#f0f0e8", color: "#555" }}>{typeLabels[incident.incidentType] || incident.incidentType}</span>
